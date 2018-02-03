@@ -1,15 +1,15 @@
 /**
  * Created by marcogobbi on 30/07/2017.
  */
-//527574454103325?fields=albums{id}
 var FB = require('fb');
 FB.options({version: 'v2.10'});
+const {client_id, client_secret} = require("./constants");
 
 function getAccessToken() {
     return new Promise(function (resolve, reject) {
         FB.api('oauth/access_token', {
-            client_id: '214654845382404',
-            client_secret: '55d81ea2021bd08d24ab9b6e619638dd',
+            client_id,
+            client_secret,
             grant_type: 'client_credentials'
         }, function (res) {
 
@@ -32,70 +32,6 @@ function getAccessToken() {
     })
 }
 
-function getPlaceDetails(id) {
-
-    return new Promise(function (resolve, reject) {
-        FB.api(id, {
-            fields: ["albums{id}"
-            ]
-        }, function (res) {
-            //  res.category_list = place.category_list;
-            if (!res || res.error) {
-                console.log("no", res, id);
-                resolve({});
-
-                return;
-            }
-
-            console.log("si", res.name);
-            resolve(res.albums.data);
-        })
-    });
-}
-
-function getAlbumImages(id) {
-
-    return new Promise(function (resolve, reject) {
-        FB.api(id, {
-            fields: ["photos{images,created_time}"]
-        }, function (res) {
-            //  res.category_list = place.category_list;
-            if (!res || res.error) {
-                console.log("no", res, id);
-                resolve({});
-
-                return;
-            }
-
-            console.log("si", res.name);
-            resolve(res.photos.data.map(({images, created_time}) => {
-                return {
-                    image: images[0]
-                    , created_time
-                }
-            }));
-        })
-    });
-}
-
-function _getInfo(id) {
-    return new Promise(function (resolve, reject) {
-        FB.api(id, {
-            fields: [`cover,description`]
-        }, function (res) {
-
-            if (!res || res.error) {
-                console.log("no", res, id);
-                resolve({cover: {source: "/static/img/bg.jpg"}, description: ""});
-
-                return;
-            }
-
-            console.log("si posts");
-            resolve(res);
-        })
-    });
-}
 
 function _getPosts(id, limit = 30) {
 
@@ -117,19 +53,6 @@ function _getPosts(id, limit = 30) {
     });
 }
 
-const STONEBRIDGE_ID = "527574454103325";
-
-function getPhotos() {
-    return getAccessToken()
-        .then(function () {
-            return getPlaceDetails(STONEBRIDGE_ID)
-        })
-        .then(response => {
-            return Promise.all(response.map(({id}) => {
-                return getAlbumImages(id)
-            }))
-        }).catch(e => [])
-}
 
 function getPosts(limit, page_id) {
     return getAccessToken()
@@ -143,41 +66,41 @@ function getComments(limit, page_id) {
     return getPosts(limit, page_id)
         .then(posts => {
             return Promise.all(
-                posts.map((post,i) => {
+                posts.map((post, i) => {
                     return new Promise(resolve => {
-                       setTimeout(_=>{
-                           FB.api(post.id, {
-                               fields: [`comments`]
-                           }, function (res) {
-                               //  res.category_list = place.category_list;
-                               if (!res || res.error) {
-                                   console.log("no comments", res, post.id);
-                                   resolve({
-                                       id: post.id
-                                       , message: post.message
-                                       , comments: []
-                                   });
+                        setTimeout(_ => {
+                            FB.api(post.id, {
+                                fields: [`comments`]
+                            }, function (res) {
+                                //  res.category_list = place.category_list;
+                                if (!res || res.error) {
+                                    console.log("no comments", res, post.id);
+                                    resolve({
+                                        id: post.id
+                                        , message: post.message
+                                        , comments: []
+                                    });
 
-                                   return;
-                               }
+                                    return;
+                                }
 
-                               console.log("si getComments");
-                               if (res.comments) {
-                                   resolve({
-                                       id: post.id
-                                       , message: post.message
-                                       , comments: res.comments.data
-                                   });
-                               } else {
-                                   resolve({
-                                       id:post.id
-                                       ,message:post.message
-                                       ,comments:[]
-                                   })
-                               }
+                                console.log("si getComments");
+                                if (res.comments) {
+                                    resolve({
+                                        id: post.id
+                                        , message: post.message
+                                        , comments: res.comments.data
+                                    });
+                                } else {
+                                    resolve({
+                                        id: post.id
+                                        , message: post.message
+                                        , comments: []
+                                    })
+                                }
 
-                           })
-                       },500*i)
+                            })
+                        }, 500 * i)
 
                     })
                 })
@@ -185,19 +108,10 @@ function getComments(limit, page_id) {
         })
 }
 
-function getInfo() {
-    return getAccessToken()
-        .then(_ => {
-            return _getInfo(STONEBRIDGE_ID)
-        }).catch(e => {
-        })
-}
+
 
 module.exports = {
-    getPosts
-    , getPhotos
-    , getInfo
-    , getComments
+      getComments
 }
 
 //

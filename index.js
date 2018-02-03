@@ -1,9 +1,11 @@
 const {getComments} = require("./facebook");
 const fs = require("fs");
-const {groupBy, flatten} = require("ramda")
+const {groupBy, flatten} = require("ramda");
 var CESENATODAY_ID = "146865878725646";
-//Promise.resolve(JSON.parse(fs.readFileSync("posts.json")))
 
+const {keyFilename} = require("./constants");
+//seguire i tutorial per installare l'SDK
+//https://cloud.google.com/natural-language/
 const language = require('@google-cloud/language');
 
 
@@ -11,7 +13,8 @@ function getResults() {
 
 // Creates a client
     const client = new language.v1beta2.LanguageServiceClient({
-        keyFilename: './cesena online-f257ce9161d8.json'
+        //
+        keyFilename
     });
     return Promise.resolve(JSON.parse(fs.readFileSync("posts-mapped.json")))
         .then(posts => {
@@ -63,28 +66,28 @@ function getResults() {
         })
 }
 
-getResults();
+// getResults();
 
-// getComments(2000, CESENATODAY_ID).then(posts => {
-//     console.log(posts)
-//     return posts
-// }).then(posts => {
-//     fs.writeFileSync("posts.json", JSON.stringify(posts, null, 4))
-//     return groupBy(post => {
-//         return post.id;
-//     }, posts)
-// })
-//     .then(posts => {
-//         Object.entries(posts).forEach(([key, post]) => {
-//             let comments = post.map(({comments}) => comments);
-//             comments = flatten(comments)
-//             comments = comments.map(comment => comment.message);
-//             posts[key] = comments;
-//
-//         })
-//         fs.writeFileSync("posts-mapped.json", JSON.stringify(posts, null, 4))
-//     })
-//     .then(getResults)
+getComments(2000, CESENATODAY_ID).then(posts => {
+    console.log(posts)
+    return posts
+}).then(posts => {
+    fs.writeFileSync("posts.json", JSON.stringify(posts, null, 4))
+    return groupBy(post => {
+        return post.id;
+    }, posts)
+})
+    .then(posts => {
+        Object.entries(posts).forEach(([key, post]) => {
+            let comments = post.map(({comments}) => comments);
+            comments = flatten(comments)
+            comments = comments.map(comment => comment.message);
+            posts[key] = comments;
+
+        })
+        fs.writeFileSync("posts-mapped.json", JSON.stringify(posts, null, 4))
+    })
+    .then(getResults)
 
 
 
