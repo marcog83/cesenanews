@@ -1,0 +1,17 @@
+posts totali 2000
+posts con commenti 1418
+totale dei commenti 12126
+
+posts con sentimental analysis 1418
+
+
+posts con commenti positivi 693  48,87%
+
+posts con commenti negativi 517  36,46%
+
+posts con commenti neutrali 208  14,67%
+
+su 5 persone 3 faranno commenti positivi
+e gli altri 2 negativi.
+
+
